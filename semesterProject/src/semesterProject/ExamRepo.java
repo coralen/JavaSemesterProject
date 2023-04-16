@@ -1,5 +1,11 @@
 package semesterProject;
 
+import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.PrintWriter;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
+
 public class ExamRepo {
 	
 	private Question[] questions;
@@ -17,24 +23,17 @@ public class ExamRepo {
 	}
 	
 	public void addQuestion(String qst) {
-		boolean noRoomLeft = true;
 		
 		for (int i = 0; i < this.questions.length; i++) {
 			if (this.questions[i] == null) {
 				this.questions[i] = new Question(qst);
-				noRoomLeft = false;
 				i = this.questions.length;
-				System.out.println("Your question has been added");
 			}
-		}
-		if (noRoomLeft) {
-			System.out.println("Limit has been reached.");
 		}
 	}
 	
 	public void addAnswer(int qstIdx, String ans, boolean ansType) {
 		
-		boolean noRoomLeft = true;
 		Answer newAns = new Answer(ans, ansType);
 		Answer[] answers = this.questions[qstIdx].getAnswers();
 		Question[] qstArr;
@@ -45,13 +44,8 @@ public class ExamRepo {
 				qstArr = this.questions;
 				qstArr[qstIdx].setAnswers(answers);
 				this.setQuestions(qstArr);
-				noRoomLeft = false;
 				i = answers.length;
-				System.out.println("Your answer has been added");
 			}
-		}
-		if (noRoomLeft) {
-			System.out.println("There are already 10 answers. Limit has been reached.");
 		}
 	}
 		
@@ -92,5 +86,39 @@ public class ExamRepo {
 		this.questions[1] = qst2;
 		
 	}
+	
+	public static String getTestDateTime() {
+		LocalDateTime myDateTime = LocalDateTime.now();
+		DateTimeFormatter myFormatObj = DateTimeFormatter.ofPattern("yyyy_MM_dd_HH_mm");
+		String formattedDate = myDateTime.format(myFormatObj);
+		return formattedDate;
+	}
+	
+	public static PrintWriter getExamPrinter() throws FileNotFoundException {
+		
+		String formattedDate = ExamRepo.getTestDateTime();
+		File exam = new File("exam_" + formattedDate);
+		PrintWriter examPrinter = new PrintWriter(exam);
+		return examPrinter;
+	} 
+	
+	public static PrintWriter getSolutionPrinter() throws FileNotFoundException {
+		
+		String formattedDate = ExamRepo.getTestDateTime();
+		File solution = new File("solution_" + formattedDate);
+		PrintWriter solutionPrinter = new PrintWriter(solution);
+		return solutionPrinter;
+	} 
+	
+	public int getNumberOfQuestions() {
+		int numOfQst = 0;
+		for (int i = 0; i < this.questions.length; i++) {
+			if (this.questions[i] != null) {
+				numOfQst++;
+			}
+		}
+		return numOfQst;
+	}
+	
 	
 }
