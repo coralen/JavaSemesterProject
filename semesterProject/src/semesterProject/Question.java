@@ -33,5 +33,15 @@ public class Question {
 	public void setAnswers(Answer[] answers){
 		this.answers = answers;
 	}
+	
+	public int getNumberOfAnswers() {
+		int numOfQst = 0;
+		for (int i = 0; i < this.answers.length; i++) {
+			if (this.answers[i] != null) {
+				numOfQst++;
+			}
+		}
+		return numOfQst;
+	}
 
 }
