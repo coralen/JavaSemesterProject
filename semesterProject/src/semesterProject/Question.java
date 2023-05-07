@@ -1,4 +1,4 @@
-package semesterProject;
+package BarGvili_206419152_CoralEngel_208455659;
 
 public class Question {
 
@@ -25,15 +25,15 @@ public class Question {
 	public Answer[] getAnswers() {
 		return this.answers;
 	}
-	
-	public void setQuestion(String question){
+
+	public void setQuestion(String question) {
 		this.question = question;
 	}
-	
-	public void setAnswers(Answer[] answers){
+
+	public void setAnswers(Answer[] answers) {
 		this.answers = answers;
 	}
-	
+
 	public int getNumberOfAnswers() {
 		int numOfQst = 0;
 		for (int i = 0; i < this.answers.length; i++) {
