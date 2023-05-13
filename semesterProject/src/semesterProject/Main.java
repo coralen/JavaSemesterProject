@@ -10,8 +10,9 @@ import java.time.format.DateTimeFormatter;
 public class Main {
 	public static void main(String[] args) throws FileNotFoundException {
 
-		int userChoice, numOfQuestionsSelected, numOfAnswersSelected, questionIndex, answerIndex, questionNumber, answerNumber,
-				numOfQuestionsAllowed, numOfAnswersAllowed, finalQuestionIndex = 0, isRightCount = 0, questionType, levelOfQuestion;
+		int userChoice, numOfQuestionsSelected, numOfAnswersSelected, questionIndex, answerIndex, questionNumber,
+				answerNumber, numOfQuestionsAllowed, numOfAnswersAllowed, finalQuestionIndex = 0, isRightCount = 0,
+				questionType, levelOfQuestion;
 		String newAns, qstString, ansString;
 		boolean ansType, newAnsType;
 		Question[] questions, finalQuestions;
@@ -29,88 +30,33 @@ public class Main {
 					+ "3 - Add a new question\n" 
 					+ "4 - Delete an answer\n"
 					+ "5 - Delete a question with its answers\n" 
-					+ "6 - Create a test\n" + "0 - Exit the menu\n");
-			
+					+ "6 - Create a test\n" 
+					+ "0 - Exit the menu\n");
+
 			userChoice = scanSelection.nextInt();
 
 			switch (userChoice) {
 			case 1:
-				questionNumber = 1;
-				questions = myTest.getQuestions();
-				for (int i = 0; i < questions.length; i++) {
-					answerNumber = 1;
-					
-					if (questions[i] != null) {
-						Class unknown = questions[i].getClass();
-						qstString = questions[i].getQuestion();
-						System.out.println((questionNumber) + ") " + qstString);
-						questionNumber++;
-						if (questions[i] != null) {
-							answers = questions[i].getAnswers();
-							for (int j = 0; j < answers.length; j++) {
-								if (answers[j] != null) {
-									ansString = answers[j].getAnswer();
-									ansType = answers[j].getIsRightAnswer();
-									System.out.println("	" + answerNumber + ") " + ansString + " - " + ansType);
-									answerNumber++;
-								}
-							}
-						}
-					}
-				}
+				printPoolOfQuestions(myTest.getQuestions(), answers, questionNumber, answerNumber, qstString);
 				break;
 
 			case 2:
-				System.out.println("To add an answer, Please enter the index of the question");
-				questionIndex = scanAnswer.nextInt();
-				System.out.println("Please enter a new answer");
-				scanAnswer.nextLine();
-				newAns = scanAnswer.nextLine();
-				System.out.println("Please enter true or false for this answer");
-				newAnsType = scanAnswer.nextBoolean();
-				myTest.addAnswer(questionIndex - 1, newAns, newAnsType);
+				addNewAnswer(scanAnswer, myTest);
 				scanAnswer.nextLine();
 				break;
 
 			case 3:
-				System.out.println("Please enter a new question");
-				String newQst = scanAnswer.nextLine();
-				System.out.println("Decide the difficulty of the question: 1=low,2=medium,3=high");
-				levelOfQuestion=scanAnswer.nextInt();
-				System.out.println("Is it a multi choice or open question. 1-multi choice,2-open");
-				questionType = scanAnswer.nextInt();
-				if(questionType==1){
-					if(levelOfQuestion==1)
-					MultiChoiceQuestion(newQst,Level.LOW);
-					else if(levelOfQuestion==2)
-					MultiChoiceQuestion(newQst,Level.MEDIUM);
-					else
-					MultiChoiceQuestion(newQst,Level.HIGH);
-				}else{
-					if(levelOfQuestion==1)
-					OpenQuestion(newQst,Level.LOW);
-					else if(levelOfQuestion==2)
-					OpenQuestion(newQst,Level.MEDIUM);
-					else
-					OpenQuestion(newQst,Level.HIGH);
-				}
+				addNewQuestion(scanAnswer, myTest);
+				scanAnswer.nextLine();
 				break;
 
 			case 4:
-				System.out.println("To delete an answer, Please enter the index of the question");
-				questionIndex = scanAnswer.nextInt();
-				System.out.println("Please enter the index of the answer");
-				answerIndex = scanAnswer.nextInt();
-				myTest.deleteAnswer(questionIndex - 1, answerIndex - 1);
-				System.out.println("Your answer has been deleted");
+				deleteAnswer(scanAnswer, myTest);
 				scanAnswer.nextLine();
 				break;
 
 			case 5:
-				System.out.println("Please enter the index of the question that you want to delete");
-				questionIndex = scanAnswer.nextInt();
-				myTest.deleteQuestion(questionIndex - 1);
-				System.out.println("Your question has been deleted");
+				deleteQuestion(scanAnswer, myTest);
 				scanAnswer.nextLine();
 				break;
 
@@ -120,7 +66,10 @@ public class Main {
 				numOfQuestionsAllowed = myTest.getNumberOfQuestions();
 				printerExam = getExamPrinter();
 				printerSolution = getSolutionPrinter();
-
+				MultiChoiceQuestion multiQuestion;
+				OpenQuestion openQuestion;
+				Question question;
+				
 				System.out.println("Please enter how many questions you want in the exam");
 				numOfQuestionsSelected = scanAnswer.nextInt();
 
@@ -134,18 +83,30 @@ public class Main {
 					System.out.println("Enter the index of the question you want to add to the exam");
 					scanAnswer.nextLine();
 					questionIndex = scanAnswer.nextInt();
+					question = questions[questionIndex];
 
 					while (questionIndex > numOfQuestionsAllowed || questionIndex < 1) {
 						System.out.println("This question doesn't exist. Please enter a different index of question");
-						questionIndex = scanAnswer.nextInt();
+						questionIndex = scanAnswer.nextInt()-1;
 					}
-					numOfAnswersAllowed = questions[questionIndex - 1].getNumberOfAnswers();
-					finalTest.addQuestion(questions[questionIndex - 1].getQuestion());
-					printerExam.print("  " + (i + 1) + ") " + questions[questionIndex - 1].getQuestion() + "\n");
-					printerSolution.print("  " + (i + 1) + ") " + questions[questionIndex - 1].getQuestion() + "\n");
+					
+					if (question.getClass() == MultiChoiceQuestion.class) {
+						questionType = 1;
+					}
+					else {
+						questionType = 2;
+					}
+					
+					finalTest.addQuestion(question.getQuestion(), questionType, questions[questionIndex].getLevel());
+					printerExam.print("  " + (i + 1) + ") " + question.getQuestion() + "\n");
+					printerSolution.print("  " + (i + 1) + ") " + question.getQuestion() + "\n");
 
-					numOfAnswersAllowed = questions[questionIndex - 1].getNumberOfAnswers();
-					answers = questions[questionIndex - 1].getAnswers();
+					if (questionType == 1) {
+						multiQuestion = ((MultiChoiceQuestion) question);
+						numOfAnswersAllowed = multiQuestion.getNumberOfAnswers();
+						answers = multiQuestion.getAnswers();
+					}
+ 
 					System.out.println("Enter the indexes of the answers to this question."
 							+ "Press any key other than a number to stop");
 
@@ -231,4 +192,109 @@ public class Main {
 		return solutionPrinter;
 	}
 
+	public static void addNewAnswer(Scanner scanAnswer, ExamRepo myTest) {
+		int questionIndex;
+		String newAnswerString;
+		Boolean newAnswerType;
+		Question[] questions = myTest.getQuestions();
+
+		System.out.println("To add an answer, Please enter the index of the question");
+		questionIndex = scanAnswer.nextInt();
+		System.out.println("Please enter a new answer");
+		scanAnswer.nextLine();
+		newAnswerString = scanAnswer.nextLine();
+		if (questions[questionIndex].getClass() == MultiChoiceQuestion.class) {
+			System.out.println("Please enter true or false for this answer");
+			newAnswerType = scanAnswer.nextBoolean();
+			myTest.addMultiChoiceAnswer(questionIndex, newAnswerString, newAnswerType);
+		} else {
+			myTest.addOpenAnswer(questionIndex, newAnswerString);
+		}
+
+	}
+
+	public static void addNewQuestion(Scanner scanAnswer, ExamRepo myTest) {
+		int questionLevel, questionType;
+		Level questionLevelObj = null;
+		String questionString;
+
+		System.out.println("Please enter a new question");
+		questionString = scanAnswer.nextLine();
+		System.out.println("Choose the difficulty of the question: 1-low, 2-medium, 3-high");
+		questionLevel = scanAnswer.nextInt();
+		System.out.println("Choose the type of the question: 1-multi choice, 2-open");
+		questionType = scanAnswer.nextInt();
+
+		switch (questionLevel) {
+		case 1:
+			questionLevelObj = Level.LOW;
+			break;
+		case 2:
+			questionLevelObj = Level.MEDIUM;
+			break;
+		case 3:
+			questionLevelObj = Level.HIGH;
+			break;
+		}
+
+		myTest.addQuestion(questionString, questionType, questionLevelObj);
+
+	}
+
+	public static void deleteAnswer(Scanner scanAnswer, ExamRepo myTest) {
+		int questionIndex, answerIndex;
+		Question question;
+
+		System.out.println("To delete an answer, Please enter the index of the question");
+		questionIndex = scanAnswer.nextInt() - 1;
+		question = myTest.getQuestions()[questionIndex];
+
+		if (question.getClass() == MultiChoiceQuestion.class) {
+			System.out.println("Please enter the index of the answer");
+			answerIndex = scanAnswer.nextInt() - 1;
+
+			myTest.deleteMultiChoiceAnswer(questionIndex, answerIndex);
+		} else {
+			myTest.deleteOpenAnswer(questionIndex);
+		}
+
+		System.out.println("Your answer has been deleted");
+	}
+
+	public static void deleteQuestion(Scanner scanAnswer, ExamRepo myTest) {
+		int questionIndex;
+
+		System.out.println("Please enter the index of the question that you want to delete");
+		questionIndex = scanAnswer.nextInt() - 1;
+		myTest.deleteQuestion(questionIndex);
+		System.out.println("Your question has been deleted");
+	}
+
+	public static void printPoolOfQuestions(Question[] questions, Answer[] answers, int questionNumber,
+			int answerNumber, String qstString) {
+
+		questionNumber = 1;
+		MultiChoiceQuestion multiQuestion;
+		OpenQuestion openQuestion;
+
+		for (int i = 0; i < questions.length; i++) {
+			answerNumber = 1;
+			if (questions[i] != null) {
+
+				System.out.println((questionNumber) + ") " + questions[i].getQuestion());
+				questionNumber++;
+
+				if (questions[i].getClass() == MultiChoiceQuestion.class) {
+					multiQuestion = (MultiChoiceQuestion) questions[i];
+					System.out.println(multiQuestion.getAnswersForDisplay());
+				}
+
+				if (questions[i].getClass() == OpenQuestion.class) {
+					openQuestion = ((OpenQuestion) questions[i]);
+					System.out.println(openQuestion.getAnswer());
+				}
+
+			}
+		}
+	}
 }

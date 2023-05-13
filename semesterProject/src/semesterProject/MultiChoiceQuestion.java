@@ -3,7 +3,6 @@ package BarGvili_206419152_CoralEngel_208455659;
 public class MultiChoiceQuestion extends Question  {
 	
 	private Answer[] answers = new Answer[10];
-	private Level questionlevel;
 	
 	public MultiChoiceQuestion(){
 		this.serialNumber = counter++;
@@ -43,12 +42,27 @@ public class MultiChoiceQuestion extends Question  {
 	}
 	
 	public int getNumberOfAnswers() {
-		int numOfQst = 0;
+		int numberOfAnswers = 0;
 		for (int i = 0; i < this.answers.length; i++) {
 			if (this.answers[i] != null) {
-				numOfQst++;
+				numberOfAnswers++;
 			}
 		}
-		return numOfQst;
+		return numberOfAnswers;
+	}
+	
+	public String getAnswersForDisplay() {
+		Answer[] answers = this.answers;
+		String answerString, answersForDisplay = "";
+		Boolean answerType;
+		
+		for (int i = 0; i < answers.length; i++) {
+			if (answers[i] != null) {
+				answerString = answers[i].getAnswer();
+				answerType = answers[i].getIsRightAnswer();
+				answersForDisplay += "	" + (i+1) + ") " + answerString + " - " + answerType + "\n";
+			}
+		}
+		return answersForDisplay;
 	}
 }
