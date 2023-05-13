@@ -10,8 +10,8 @@ import java.time.format.DateTimeFormatter;
 public class Main {
 	public static void main(String[] args) throws FileNotFoundException {
 
-		int userChoice, numOfQuestionsSelected, numOfAnswersSelected, qstIdx, ansIdx, qstNumber, ansNumber,
-				numOfQuestionsAllowed, numOfAnswersAllowed, finalQstIdx = 0, isRightCount = 0;
+		int userChoice, numOfQuestionsSelected, numOfAnswersSelected, questionIndex, answerIndex, questionNumber, answerNumber,
+				numOfQuestionsAllowed, numOfAnswersAllowed, finalQuestionIndex = 0, isRightCount = 0, questionType, levelOfQuestion;
 		String newAns, qstString, ansString;
 		boolean ansType, newAnsType;
 		Question[] questions, finalQuestions;
@@ -35,23 +35,24 @@ public class Main {
 
 			switch (userChoice) {
 			case 1:
-				qstNumber = 1;
+				questionNumber = 1;
 				questions = myTest.getQuestions();
 				for (int i = 0; i < questions.length; i++) {
-					ansNumber = 1;
-
+					answerNumber = 1;
+					
 					if (questions[i] != null) {
+						Class unknown = questions[i].getClass();
 						qstString = questions[i].getQuestion();
-						System.out.println((qstNumber) + ") " + qstString);
-						qstNumber++;
+						System.out.println((questionNumber) + ") " + qstString);
+						questionNumber++;
 						if (questions[i] != null) {
 							answers = questions[i].getAnswers();
 							for (int j = 0; j < answers.length; j++) {
 								if (answers[j] != null) {
 									ansString = answers[j].getAnswer();
 									ansType = answers[j].getIsRightAnswer();
-									System.out.println("	" + ansNumber + ") " + ansString + " - " + ansType);
-									ansNumber++;
+									System.out.println("	" + answerNumber + ") " + ansString + " - " + ansType);
+									answerNumber++;
 								}
 							}
 						}
@@ -61,42 +62,60 @@ public class Main {
 
 			case 2:
 				System.out.println("To add an answer, Please enter the index of the question");
-				qstIdx = scanAnswer.nextInt();
+				questionIndex = scanAnswer.nextInt();
 				System.out.println("Please enter a new answer");
 				scanAnswer.nextLine();
 				newAns = scanAnswer.nextLine();
 				System.out.println("Please enter true or false for this answer");
 				newAnsType = scanAnswer.nextBoolean();
-				myTest.addAnswer(qstIdx - 1, newAns, newAnsType);
+				myTest.addAnswer(questionIndex - 1, newAns, newAnsType);
 				scanAnswer.nextLine();
 				break;
 
 			case 3:
 				System.out.println("Please enter a new question");
 				String newQst = scanAnswer.nextLine();
-				myTest.addQuestion(newQst);
+				System.out.println("Decide the difficulty of the question: 1=low,2=medium,3=high");
+				levelOfQuestion=scanAnswer.nextInt();
+				System.out.println("Is it a multi choice or open question. 1-multi choice,2-open");
+				questionType = scanAnswer.nextInt();
+				if(questionType==1){
+					if(levelOfQuestion==1)
+					MultiChoiceQuestion(newQst,Level.LOW);
+					else if(levelOfQuestion==2)
+					MultiChoiceQuestion(newQst,Level.MEDIUM);
+					else
+					MultiChoiceQuestion(newQst,Level.HIGH);
+				}else{
+					if(levelOfQuestion==1)
+					OpenQuestion(newQst,Level.LOW);
+					else if(levelOfQuestion==2)
+					OpenQuestion(newQst,Level.MEDIUM);
+					else
+					OpenQuestion(newQst,Level.HIGH);
+				}
 				break;
 
 			case 4:
 				System.out.println("To delete an answer, Please enter the index of the question");
-				qstIdx = scanAnswer.nextInt();
+				questionIndex = scanAnswer.nextInt();
 				System.out.println("Please enter the index of the answer");
-				ansIdx = scanAnswer.nextInt();
-				myTest.deleteAnswer(qstIdx - 1, ansIdx - 1);
+				answerIndex = scanAnswer.nextInt();
+				myTest.deleteAnswer(questionIndex - 1, answerIndex - 1);
 				System.out.println("Your answer has been deleted");
 				scanAnswer.nextLine();
 				break;
 
 			case 5:
 				System.out.println("Please enter the index of the question that you want to delete");
-				qstIdx = scanAnswer.nextInt();
-				myTest.deleteQuestion(qstIdx - 1);
+				questionIndex = scanAnswer.nextInt();
+				myTest.deleteQuestion(questionIndex - 1);
 				System.out.println("Your question has been deleted");
 				scanAnswer.nextLine();
 				break;
 
 			case 6:
-				finalQstIdx = 0;
+				finalQuestionIndex = 0;
 				questions = myTest.getQuestions();
 				numOfQuestionsAllowed = myTest.getNumberOfQuestions();
 				printerExam = getExamPrinter();
@@ -114,32 +133,32 @@ public class Main {
 				for (int i = 0; i < numOfQuestionsSelected; i++) {
 					System.out.println("Enter the index of the question you want to add to the exam");
 					scanAnswer.nextLine();
-					qstIdx = scanAnswer.nextInt();
+					questionIndex = scanAnswer.nextInt();
 
-					while (qstIdx > numOfQuestionsAllowed || qstIdx < 1) {
+					while (questionIndex > numOfQuestionsAllowed || questionIndex < 1) {
 						System.out.println("This question doesn't exist. Please enter a different index of question");
-						qstIdx = scanAnswer.nextInt();
+						questionIndex = scanAnswer.nextInt();
 					}
-					numOfAnswersAllowed = questions[qstIdx - 1].getNumberOfAnswers();
-					finalTest.addQuestion(questions[qstIdx - 1].getQuestion());
-					printerExam.print("  " + (i + 1) + ") " + questions[qstIdx - 1].getQuestion() + "\n");
-					printerSolution.print("  " + (i + 1) + ") " + questions[qstIdx - 1].getQuestion() + "\n");
+					numOfAnswersAllowed = questions[questionIndex - 1].getNumberOfAnswers();
+					finalTest.addQuestion(questions[questionIndex - 1].getQuestion());
+					printerExam.print("  " + (i + 1) + ") " + questions[questionIndex - 1].getQuestion() + "\n");
+					printerSolution.print("  " + (i + 1) + ") " + questions[questionIndex - 1].getQuestion() + "\n");
 
-					numOfAnswersAllowed = questions[qstIdx - 1].getNumberOfAnswers();
-					answers = questions[qstIdx - 1].getAnswers();
+					numOfAnswersAllowed = questions[questionIndex - 1].getNumberOfAnswers();
+					answers = questions[questionIndex - 1].getAnswers();
 					System.out.println("Enter the indexes of the answers to this question."
 							+ "Press any key other than a number to stop");
 
 					numOfAnswersSelected = 0;
 					isRightCount = 0;
 					while (scanAnswer.hasNextInt()) {
-						ansIdx = scanAnswer.nextInt();
-						while (ansIdx > numOfAnswersAllowed || ansIdx < 1) {
+						answerIndex = scanAnswer.nextInt();
+						while (answerIndex > numOfAnswersAllowed || answerIndex < 1) {
 							System.out.println("Invalid index for an answer");
-							ansIdx = scanAnswer.nextInt();
+							answerIndex = scanAnswer.nextInt();
 						}
 						numOfAnswersSelected++;
-						ans = answers[ansIdx - 1];
+						ans = answers[answerIndex - 1];
 						if (ans.getIsRightAnswer()) {
 							isRightCount++;
 						}
@@ -148,14 +167,14 @@ public class Main {
 					}
 
 					finalQuestions = finalTest.getQuestions();
-					finalAnswers = finalQuestions[finalQstIdx].getAnswers();
+					finalAnswers = finalQuestions[finalQuestionIndex].getAnswers();
 
 					int j;
 					for (j = 0; j < numOfAnswersSelected; j++) {
 						if (isRightCount > 1 || isRightCount == 0) {
 							finalAnswers[j].setIsRightAnswer(false);
 						}
-						finalQuestions[finalQstIdx].setAnswers(finalAnswers);
+						finalQuestions[finalQuestionIndex].setAnswers(finalAnswers);
 						finalTest.setQuestions(finalQuestions);
 						printerExam.print("    " + (j + 1) + ") " + finalAnswers[j].getAnswer() + "\n");
 						printerSolution.print("    " + (j + 1) + ") " + finalAnswers[j].getAnswer() + " - "
@@ -176,7 +195,7 @@ public class Main {
 								+ (j + 2) + ") No answer is correct - false\n");
 					}
 
-					finalQstIdx++;
+					finalQuestionIndex++;
 					scanAnswer.nextLine();
 				}
 				scanAnswer.nextLine();
@@ -199,7 +218,7 @@ public class Main {
 	public static PrintWriter getExamPrinter() throws FileNotFoundException {
 
 		String formattedDate = getTestDateTime();
-		File exam = new File("exam_" + formattedDate);
+		File exam = new File("exam_" + formattedDate + ".txt");
 		PrintWriter examPrinter = new PrintWriter(exam);
 		return examPrinter;
 	}
@@ -207,7 +226,7 @@ public class Main {
 	public static PrintWriter getSolutionPrinter() throws FileNotFoundException {
 
 		String formattedDate = getTestDateTime();
-		File solution = new File("solution_" + formattedDate);
+		File solution = new File("solution_" + formattedDate + ".txt");
 		PrintWriter solutionPrinter = new PrintWriter(solution);
 		return solutionPrinter;
 	}
